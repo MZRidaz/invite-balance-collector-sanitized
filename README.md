@@ -80,3 +80,8 @@ def fetch(site: dict) -> float:
 ```
 
 The module filename must match `site['module']`.
+
+
+
+## License
+This project is licensed under the MIT License.
