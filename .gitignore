@@ -1,0 +1,6 @@
+
+config.py
+auth/*.json
+excel/*.xlsx
+__pycache__/
+*.pyc
