@@ -5,54 +5,140 @@
 
 # Invite Balance Collector
 
----
-
-## English
-
-Invite Balance Collector is a **Playwright-based automation framework** for collecting  
+Invite Balance Collector is a **Playwright-based automation tool** for collecting  
 invite / referral wallet balances from multiple websites and aggregating them into Excel.
 
-This project is designed for **real-world websites that require authentication**,  
-and provides a **safe and stable login handling strategy**.
+It is designed for **real-world websites that require authentication**.
 
 ---
 
-### ✨ Features
+## ✨ Features
 
 - Modular **site plugin architecture**
-- Playwright browser automation
-- Excel aggregation output
-- Windows / Linux support
+- Playwright browser automation (sync API)
 - **Headless-first scraping**
 - **Automatic manual-login fallback**
 - Persistent login state (cookies & storage)
-- Safe for GitHub (no secrets included)
+- **Batch Excel writing (open once, save once)**
+- Windows / Linux support
+- Safe for GitHub (no credentials included)
 
 ---
 
-### 🔐 Authentication Strategy (Important)
+## 🔐 Authentication Strategy
 
-Some target websites require authentication.
+This project uses a **headless-first with manual-login fallback** approach:
 
-This project uses a **headless-first with manual-login fallback** strategy:
+- Tries to scrape using headless mode
+- If login is required:
+  - A browser window opens
+  - You log in manually once
+  - Login state is saved and reused
+- No need to log in again unless the session expires
 
-1. The script first tries to scrape using **headless mode**
-2. If the site is **not logged in**:
-   - A browser window automatically opens
-   - You complete login **manually**
-   - Login state is saved (cookies / storage)
-3. Subsequent runs reuse the saved login state  
-   → **No need to log in again unless the session expires**
-
-This approach is:
-- Safer than hardcoding credentials
-- More stable against site changes
-- Commonly used in production automation systems
+This avoids hardcoded passwords and is more stable for long-term use.
 
 ---
 
-### 🛠 Installation
+## ⚡ Performance
+
+- Playwright initialized once per run
+- Single browser instance reused
+- Isolated browser contexts per site
+- Images, fonts, and media blocked
+- Excel file written **once per run**
+
+---
+
+## 🛠 Installation
 
 ```bash
 pip install -r requirements.txt
 playwright install
+```
+
+---
+
+## ▶ Usage
+
+### 1️⃣ Create config
+
+```bash
+cp config.example.py config.py
+```
+
+Edit `config.py`:
+
+```python
+SITES = [
+    {
+        "name": "site_example",
+        "invite_url": "https://example.com/invite",
+        "module": "site_example"
+    }
+]
+```
+
+---
+
+### 2️⃣ Run
+
+```bash
+python main.py
+```
+
+- Logged in → runs headless
+- Not logged in → browser opens for manual login
+
+---
+
+## 🧩 Site Plugin Interface
+
+Each site plugin must implement:
+
+```python
+def fetch_with_browser(p, browser, site: dict) -> float:
+    ...
+```
+
+Rules:
+
+- One site = one plugin
+- Filename must match `site["module"]`
+- Return a numeric value (`float`)
+- Do not hardcode credentials
+
+---
+
+## 📊 Excel Output
+
+Default file: `excel/invite_balance.xlsx`
+
+| Website | Current Balance | Last Update Time | Remark |
+|--------|-----------------|------------------|--------|
+
+Data is written in batch and saved once.
+
+---
+
+## 🔒 Security
+
+Do NOT commit:
+
+- `config.py`
+- `auth/*.json`
+- Real credentials
+- Excel files with real data
+
+---
+
+## 📜 License
+
+MIT License.
+
+---
+
+## 🙌 Contributing
+
+Contributions are welcome.  
+See `CONTRIBUTING.md` for details.
